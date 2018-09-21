@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <script src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script src="./template.js"></script>
+    <title>学生信息表</title>
+</head>
+<style type="text/css">
+    * {
+        margin: 0;
+        padding: 0;
+        font-family: Arial, Helvetica, sans-serif;
+        -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+        word-break: break-all;
+    }
+    h1 {
+        margin-top: 20px;
+        margin-bottom: 20px;
+        text-align: center;
+    }
+    .main-view {
+        width: 80%;
+        margin-left: 10%;
+        border:solid 1px #eee;
+    }
+    tr,td,th {
+        /*width: 25%;*/
+    }  
+</style>
+<body>
+    <h1>学生信息表</h1>
+    <div class="main-view">
+
+        <div id="content"></div>
+        <script id="test" type="text/html">
+            <table border=1px width=100% align=center>
+                <tr bgcolor="#abcdef">
+                    <th>学号</th>
+                    <th>姓名</th>
+                    <th>家庭住址</th>
+                    <th>联系方式</th>
+                </tr>
+                {{each}}
+                <tr align=center>
+                    <td>{{$value.pk}}</td>
+                    <td>{{$value.name}}</td>
+                    <td>{{$value.address}}</td>
+                    <td>{{$value.phone}}</td>
+                </tr>
+                {{/each}}
+            </table> 
+        </script>
+
+        <div class="msg-create-view" style="margin-top: 40px" align=center>
+            <h4>添加新学生</h4>
+            <form action="">
+                学生姓名: <input type="text" id="name"><br>
+                家庭住址: <input type="text" id="address"><br>
+                联系方式: <input type="text" id="phone"><br>
+            </form>
+            <button id='save' style="margin-top: 10px">保存</button>
+        </div>
+
+    </div>  
+
+    <script type="text/javascript">
+        
+        window.onload=function(){
+
+            getInfo();
+        
+            $("#save").click(function(){
+                name = $("#name").val();
+                address = $("#address").val();
+                phone = $("#phone").val();
+                if (name && address && phone) {
+                    addInfo(name, address, phone);
+                } else {
+                    alert("信息不全");
+                }
+            });
+        }
+
+        function getInfo() {
+            $.ajax({
+                type: 'get',
+                url: 'http://127.0.0.1:8000/info/info',
+                timeout: 6000,
+                success: function(json){
+                    console.log(json.items);
+                    var html = template('test', json.items);
+                    document.getElementById('content').innerHTML = html;
+                }
+            });  
+        }
+
+        function addInfo(name, address, phone) {
+            $.ajax({
+                type: 'post',
+                url: 'http://127.0.0.1:8000/info/info/add/',
+                timeout: 6000,
+                data: {
+                    name: name,
+                    address: address,
+                    phone: phone
+                },
+                success: function(json){
+                    console.log(json);
+                    if (json.result == 'ok') {
+                        alert("添加成功");
+                        getInfo();
+                    }
+                },
+                error: function(xhr, textStatus){
+                }
+            })
+        }
+    </script>
+</body>
+</html>
